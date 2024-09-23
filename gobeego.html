@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoBeegoo - Pixel Art Maker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent; /* Фонът е прозрачен */
+        }
+
+        .pixel {
+            width: 4vw; /* Адаптивни единици за различни екрани */
+            height: 4vw;
+            background-color: #d3d3d3; /* Светло сив цвят по подразбиране */
+            box-sizing: border-box;
+            border: 1px solid #000000;
+        }
+
+        .label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            background-color: #ffffff;
+            border: 1px solid #000;
+            box-sizing: border-box;
+            position: sticky;
+            z-index: 10;
+        }
+
+        .label-row {
+            top: 0;     
+        }
+
+        .label-col {
+            left: 0;
+        }
+
+        #grid-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 100px;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(25, 4vw); /* Колони с адаптивна ширина */
+            gap: 2px;
+        }
+
+        #toolbar {
+            position: fixed; /* Фиксиран панел с инструменти */
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333; /* Тъмен фон за панела */
+            padding: 10px;
+            z-index: 1000; /* Уверяваме се, че е най-отгоре */
+            display: flex;
+            flex-wrap: wrap; /* Позволява пренасяне на съдържание на нов ред при малки екрани */
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            margin-top: 23px; /* Добавено разстояние отгоре */
+        }
+
+        #site-info {
+            display: flex;
+            justify-content: center;
+            color: white;
+        }
+
+        #site-info h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        #footer nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        #footer nav a:hover {
+            text-decoration: underline;
+        }
+
+        .color-button {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .action-button {
+            width: 80px;
+            height: 50px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            background-color: #ed28a2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px; /* Увеличен размер на иконата */
+        }
+    </style>
+    <!-- Вмъкваме най-новата версия на html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <div id="site-info">
+            <h1>GoBeeGo</h1>
+        </div>
+    </div>
+
+    <div id="grid-container">
+        <div id="grid"></div>
+    </div>
+
+    <div id="footer">
+        <nav>
+            <a href="beads-board.html">Pixel Art Дъска с камъчета</a> |
+            <a href="lego-board.html"> Шаблони с анимационни герои</a> |
+            <a href="brick-board.html">Модели за оцветяване на хартия</a>
+        </nav>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        let color = 'black'; // Началният цвят е черен
+        const baseColor = '#d3d3d3'; // Светло сив цвят по подразбиране
+        const rows = 25;
+        const cols = 25;
+
+        const bulgarianAlphabet = [
+            'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч'
+        ];
+
+        // Създаваме мрежата и добавяме пикселите
+        function createGrid() {
+            grid.innerHTML = ''; // Изчистваме мрежата преди да я създадем наново
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const pixel = document.createElement('div');
+                    if (i === 0 && j > 0) {
+                        pixel.className = 'label label-row';
+                        pixel.textContent = j;
+                    } else if (j === 0 && i > 0) {
+                        pixel.className = 'label label-col';
+                        pixel.textContent = bulgarianAlphabet[i - 1];
+                    } else if (i > 0 && j > 0) {
+                        pixel.className = 'pixel';
+                        pixel.addEventListener('click', () => {
+                            pixel.style.backgroundColor = color;
+                        });
+                        pixel.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            pixel.style.backgroundColor = baseColor;
+                        });
+                    } else {
+                        pixel.className = 'label';
+                    }
+                    grid.appendChild(pixel);
+                }
+            }
+        }
+
+        // Функция за промяна на цвета
+        function changeColor(newColor) {
+            color = newColor;
+        }
+
+        // Функция за изчистване на мрежата
+        function clearGrid() {
+            const pixels = document.querySelectorAll('.pixel');
+            pixels.forEach(pixel => {
+                pixel.style.backgroundColor = baseColor;
+            });
+        }
+
+        // Създаваме бутоните за избор на цветове динамично
+        const colors = ['black', '#d3d3d3', 'white', 'red', 'blue', 'orange', 'green', 'yellow'];
+        const toolbar = document.getElementById('toolbar');
+
+        // Създаваме контейнер за бутоните
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.style.display = 'flex';
+        buttonsContainer.style.flexWrap = 'wrap';
+        buttonsContainer.style.alignItems = 'center';
+        toolbar.appendChild(buttonsContainer);
+
+        colors.forEach((clr) => {
+            const button = document.createElement('button');
+            button.className = 'color-button';
+            button.style.backgroundColor = clr;
+            button.onclick = () => changeColor(clr);
+            button.setAttribute('aria-label', `Избери цвят ${clr}`);
+            buttonsContainer.appendChild(button);
+        });
+
+        // Добавяме бутона за изчистване с икона 🗑️
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'action-button';
+        clearBtn.textContent = '🗑️';
+        clearBtn.onclick = clearGrid;
+        buttonsContainer.appendChild(clearBtn);
+
+        // Добавяме бутона за запазване с икона 💾
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'action-button';
+        saveBtn.textContent = '💾';
+        saveBtn.onclick = function() {
+            html2canvas(document.getElementById('grid')).then(function(canvas) {
+                let link = document.createElement('a');
+                link.download = 'pixel-art.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                alert('Картината е запазена успешно!');
+            });
+        };
+        buttonsContainer.appendChild(saveBtn);
+
+        // Създаваме мрежата при зареждане на страницата
+        createGrid();
+    </script>
+</body>
+</html>
